@@ -20,11 +20,8 @@ public class TileMapGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        /*string linebreakedstring = $"This is a string with a {Environment.NewLine}linebreak!";
-        Debug.Log(linebreakedstring);
-        System.IO.File.WriteAllText(Application.persistentDataPath + "/testfile.txt", linebreakedstring); */
-
-        string sJoined = GenerateMapString(20, 25);
+        
+        string sJoined = GenerateMapString(25, 20);
         Debug.Log("The result is: " + sJoined);
 
         charText.text = sJoined; 
@@ -40,13 +37,21 @@ public class TileMapGenerator : MonoBehaviour
     public string GenerateMapString(int width, int height)
     {
         // '#' for walls, '@' for doors, '*' for field '%' for grass and 'P' for the player
-        string sMatrix = ""; 
+        string sMatrix = "";
 
-        for(int i = 0; i < width; i++) 
+        for (int j = 0; j < height; j++)
         {
-            for (int j = 0; j < height; j++) 
+            for (int i = 0; i < width; i++)
             {
-                sMatrix += GenerateString(0, 5); 
+                // the border has to be walls
+                if (i == 0 || j == 0 || i == width - 1 || j == height - 1)
+                    sMatrix += "#";
+                else if (i == width / 2 && j == height - 3) 
+                { 
+                    sMatrix += "P"; Debug.Log("P" + i + j); 
+                }                    
+                else
+                    sMatrix += GenerateString(0, 4); 
             }
             sMatrix += Environment.NewLine; 
 
@@ -57,6 +62,7 @@ public class TileMapGenerator : MonoBehaviour
 
     public  static int randomNumber(int a, int b)
     {
+        // Generate a random number to later get a random character
         System.Random random = new System.Random();
         int rslt = random.Next(a, b);
         return rslt; 
