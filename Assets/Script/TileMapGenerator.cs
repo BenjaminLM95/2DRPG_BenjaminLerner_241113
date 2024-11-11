@@ -5,12 +5,16 @@ using UnityEngine.Tilemaps;
 using System;
 using UnityEngine.Rendering;
 using TMPro;
+using UnityEngine.Windows;
 
 public class TileMapGenerator : MonoBehaviour
 {
     public Tilemap myTilemap;
-    public TileBase Walls;
-    public TileBase Door;
+    public TileBase walls;
+    public TileBase door;
+    public TileBase field;
+    public TileBase grass;
+    public TileBase player; 
     public int[,] multidimensionalMap = new int[25, 25];
     public int[,] TempMap = new int[25, 25];
     private string[] aString = new string[3];
@@ -23,6 +27,7 @@ public class TileMapGenerator : MonoBehaviour
         
         string sJoined = GenerateMapString(25, 20);
         Debug.Log("The result is: " + sJoined);
+        //ConvertMapToTilemap(sJoined);
 
         charText.text = sJoined; 
        
@@ -48,6 +53,7 @@ public class TileMapGenerator : MonoBehaviour
                     sMatrix += "#";
                 else if (i == width / 2 && j == height - 3) 
                 { 
+                    //It should be one player only
                     sMatrix += "P"; Debug.Log("P" + i + j); 
                 }                    
                 else
@@ -99,6 +105,44 @@ public class TileMapGenerator : MonoBehaviour
 
         return charElement;
     }
-    
+
+    private void ConvertMapToTilemap(string mapData)
+    {
+        var lines = mapData.Split("\n"[0]);
+        // '#' for walls, '@' for doors, '*' for field '%' for grass and 'P' for the player
+        for (int i = 0; i < lines.Length; i++) { 
+
+            for (var j = 0; j < lines[i].Length; j++)
+            {
+            if (lines[i][j] == "#"[0]) // wall
+                {
+
+                } 
+            else if (lines[i][j] == "@"[0])  // door
+                {
+
+                }
+            else if (lines[i][j] == "*"[0]) // field
+                {
+
+                }
+            else if (lines[i][j] == "%"[0]) // grass 
+                {
+
+                }
+            else if (lines[i][j] == "P"[0]) // player
+                
+                {
+
+                }
+                else // field by default 
+                {
+
+                }
+            }
+        }       
+
+    }
+
 
 }

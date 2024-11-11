@@ -473,9 +473,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55a51ad73314d5f4381ce0d360d064ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myTilemap: {fileID: 0}
-  Walls: {fileID: 0}
-  Door: {fileID: 0}
+  myTilemap: {fileID: 900016312}
+  walls: {fileID: 11400000, guid: ea4aef8ace432314d90d36215ae57898, type: 2}
+  door: {fileID: 11400000, guid: 1159440d73fd6be42b9d7ac31dbfa06e, type: 2}
+  field: {fileID: 11400000, guid: c33916250995c1e43b7f0655d9cdf0f4, type: 2}
+  grass: {fileID: 11400000, guid: 27a866760a435a94ebd9e81fb488a5ad, type: 2}
+  player: {fileID: 11400000, guid: 7330c87eb6df73443ba427ea2b2bbb48, type: 2}
   charText: {fileID: 1031940619}
 --- !u!156049354 &799117725
 Grid:
