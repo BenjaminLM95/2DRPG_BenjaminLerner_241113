@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 using TMPro;
 //using UnityEngine.Windows;
 using UnityEditor.U2D.Aseprite;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class TileMapGenerator : MonoBehaviour
 {
@@ -15,23 +16,46 @@ public class TileMapGenerator : MonoBehaviour
     public TileBase door;
     public TileBase field;
     public TileBase grass;
-    public TileBase player; 
-    public string[,] multidimensionalMap = new string[25, 20];
-    public int[,] TempMap = new int[25, 25];
+    public TileBase player;
+    public TileBase grass2;
+    public TileBase tree; 
+    public string[,] multidimensionalMap = new string[25, 20];    
     private string[] aString = new string[3];
     public TextMeshProUGUI charText;
     string sJoined;
+    int player_x = 0;
+    int player_y = 0;
+    string pathToMyFile; 
 
     // Start is called before the first frame update
     void Start()
     {
-        
-        sJoined = GenerateMapString(25, 20);
-        Debug.Log("The result is: " + sJoined);
-        ConvertMapToTilemap(sJoined);
+
+        //sJoined = GenerateMapString(25, 20);
+        //Debug.Log("The result is: " + sJoined);
+
+        //ConvertMapToTilemap(sJoined);
+        pathToMyFile = $"{Application.dataPath}/TextFileMap.txt"; 
+        LoadPremadeMap(pathToMyFile); 
+
+        ConvertToMap(System.IO.File.ReadAllText(pathToMyFile), multidimensionalMap);
+
+        for (int i = 0; i < multidimensionalMap.GetLength(0); i++)
+        {
+            for (int j = 0; j < multidimensionalMap.GetLength(1); j++)
+            {
+                if (multidimensionalMap[i, j] == "P")
+                {
+                    player_x = i;
+                    player_y = j;
+                    Debug.Log("i: " + i + " j: " + j); 
+                }
+            }
+        }
+
 
         //charText.text = sJoined; 
-       
+
     }
 
     // Update is called once per frame
@@ -39,80 +63,53 @@ public class TileMapGenerator : MonoBehaviour
     {
 
         myTilemap.ClearAllTiles();
+        //ConvertMapToTilemap(sJoined);
+
+        LoadPremadeMap(pathToMyFile);
+
+        myTilemap.SetTile(new Vector3Int(player_x, player_y, 1), player);
 
         if (Input.GetKeyDown(KeyCode.S)) 
         {
+            // The player moves down
+            if(checkForCollision(player_x, player_y - 1, "#", multidimensionalMap) || checkForCollision(player_x, player_y - 1, "@", multidimensionalMap)) 
+            { Debug.Log("You can't pass" + player_x + " " + player_y);  }
+            else
+            player_y--; 
             
-            ConvertToMap(sJoined, multidimensionalMap);
-            MoveOnMap(multidimensionalMap, 0, -1);
-
-            sJoined = "";
-            for (int j = 0; j < 20; j++)
-            {
-                for (int i = 0; i < 25; i++)
-                {
-                    sJoined += multidimensionalMap[i, j];
-                }
-                sJoined += Environment.NewLine;
-            }
-
         }
 
         if (Input.GetKeyDown(KeyCode.W))
         {
 
-            ConvertToMap(sJoined, multidimensionalMap);
-            MoveOnMap(multidimensionalMap, 0, 1);
-
-            sJoined = "";
-            for (int j = 0; j < 20; j++)
-            {
-                for (int i = 0; i < 25; i++)
-                {
-                    sJoined += multidimensionalMap[i, j];
-                }
-                sJoined += Environment.NewLine;
-            }
-
+            // The player moves up
+            if (checkForCollision(player_x, player_y + 1, "#", multidimensionalMap) || checkForCollision(player_x, player_y + 1, "@", multidimensionalMap))
+            { Debug.Log("You can't pass" + player_x + " " + player_y); }
+            else
+                player_y++;
         }
 
         if (Input.GetKeyDown(KeyCode.A))
         {
 
-            ConvertToMap(sJoined, multidimensionalMap);
-            MoveOnMap(multidimensionalMap, -1, 0);
-
-            sJoined = "";
-            for (int j = 0; j < 20; j++)
-            {
-                for (int i = 0; i < 25; i++)
-                {
-                    sJoined += multidimensionalMap[i, j];
-                }
-                sJoined += Environment.NewLine;
-            }
-
+            // The player moves left
+            if (checkForCollision(player_x - 1, player_y, "#", multidimensionalMap) || checkForCollision(player_x - 1, player_y, "@", multidimensionalMap))
+            { Debug.Log("You can't pass" + player_x + " " + player_y);  }
+            else
+                player_x--; 
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-
-            ConvertToMap(sJoined, multidimensionalMap);
-            MoveOnMap(multidimensionalMap, 1, 0);
-
-            sJoined = "";
-            for (int j = 0; j < 20; j++)
-            {
-                for (int i = 0; i < 25; i++)
-                {
-                    sJoined += multidimensionalMap[i, j];
-                }
-                sJoined += Environment.NewLine;
-            }
-
+            // The player moves right
+            if (checkForCollision(player_x + 1, player_y, "#", multidimensionalMap) || checkForCollision(player_x + 1, player_y, "@", multidimensionalMap))
+            { Debug.Log("You can't pass" + player_x + " " + player_y); }
+            else
+                player_x++; 
+            
         }
 
-        ConvertMapToTilemap(sJoined);
+        
 
 
     }
@@ -121,11 +118,13 @@ public class TileMapGenerator : MonoBehaviour
     
     public string GenerateMapString(int width, int height)
     {
-        // '#' for walls, '@' for doors, '*' for field '%' for grass and 'P' for the player
+        // '#' for walls, '@' for doors, '*' for field '%' for grass, '&' for a tree
+        // Creating a bidimensional array for the map to later convert it into a string
         string sMatrix = "";
 
         string[,] mapMatrix = new string[width, height];
-        string[,] auxMatrix = new string[width, height];
+        
+        //string[,] auxMatrix = new string[width, height];
 
         // Creating a 2-dimensional array for the map
         for (int j = 0; j < height; j++)
@@ -133,15 +132,11 @@ public class TileMapGenerator : MonoBehaviour
             for (int i = 0; i < width; i++)
             {
                 if (i == 0 || j == 0 || i == width - 1 || j == height - 1)
-                    mapMatrix[i,j] = "#";
+                    mapMatrix[i,j] = "#";  //The borders should be walls
                 else if (i == width / 2 && j == height - 3)
                 {
-                    //It should be one player only
-                    mapMatrix[i, j] = "P"; Debug.Log("P" + i + j);
-                }
-                else if ((i == width / 2 - 1 || i == width / 2 + 1) && (j == height - 2 || j == height - 4)) 
-                {
-                    mapMatrix[i, j] = "*"; 
+                    //Where the player is
+                    mapMatrix[i, j] = "P"; 
                 }
                 else
                     mapMatrix[i, j] = GenerateString();
@@ -149,7 +144,7 @@ public class TileMapGenerator : MonoBehaviour
         }
 
         // Appling rules
-
+        // It can't be multiple doors together
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
@@ -191,21 +186,30 @@ public class TileMapGenerator : MonoBehaviour
 
     string GenerateString() 
     {
-        // '#' for walls, '@' for doors, '*' for field '%' for grass and 'P' for the player
+        // Generate the char at random
+        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree
         string charElement;
         int typeOfString = randomNumber(0, 100);
 
-        if (typeOfString < 40)
+        if (typeOfString < 35)
         {
             charElement = "*";
         }
-        else if (typeOfString < 80)
+        else if (typeOfString < 50)
         {
             charElement = "%";
         }
-        else if (typeOfString < 95)
+        else if (typeOfString < 65) 
+        {
+            charElement = "$"; 
+        }
+        else if (typeOfString < 84)
         {
             charElement = "#";
+        }
+        else if (typeOfString < 92) 
+        {
+            charElement = "&"; 
         }
         else if (typeOfString < 100)
         {
@@ -222,8 +226,9 @@ public class TileMapGenerator : MonoBehaviour
 
     private void ConvertMapToTilemap(string mapData)
     {
+        // Split the char (string) to set it into the 2d array
         var lines = mapData.Split("\n"[0]);
-        // '#' for walls, '@' for doors, '*' for field '%' for grass and 'P' for the player
+        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree
         for (int i = 0; i < lines.Length; i++) { 
 
             for (var j = 0; j < lines[i].Length - 1; j++)
@@ -244,10 +249,18 @@ public class TileMapGenerator : MonoBehaviour
                 {
                     myTilemap.SetTile(new Vector3Int(j, i, 0), grass);
                 }
-            else if (lines[i][j] == "P"[0]) // player
+            else if (lines[i][j] == "$"[0]) // grass2
                 
                 {
-                    myTilemap.SetTile(new Vector3Int(j, i, 0), player);
+                    myTilemap.SetTile(new Vector3Int(j, i, 0), grass2);
+                }
+            else if (lines[i][j] == "&"[0]) // tree
+                {
+                    myTilemap.SetTile(new Vector3Int(j, i, 0), tree); 
+                }
+            else if (lines[i][j] == "P"[0]) //Player
+                {
+                    myTilemap.SetTile(new Vector3Int(j, i, 0), field);
                 }
                 else // field by default 
                 {
@@ -260,6 +273,8 @@ public class TileMapGenerator : MonoBehaviour
 
     private void ConvertToMap(string sMap, string[,] daMap) 
     {
+        // Split the char (string) from a specific 2d array
+        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree
         var lines = sMap.Split("\n"[0]);
         
         for (int j = 0; j < daMap.GetLength(1); j++)
@@ -267,7 +282,7 @@ public class TileMapGenerator : MonoBehaviour
 
             for (int i = 0; i < daMap.GetLength(0); i++)
             {
-                Debug.Log("i is equal to: " + i + "J is equal to: " + j + " " + daMap.GetLength(0) + " " + daMap.GetLength(1)); 
+                //Debug.Log("i is equal to: " + i + "J is equal to: " + j + " " + daMap.GetLength(0) + " " + daMap.GetLength(1)); 
                 if (lines[j][i] == "#"[0]) // wall
                 {
                     daMap[i, j] = "#";
@@ -284,10 +299,18 @@ public class TileMapGenerator : MonoBehaviour
                 {
                     daMap[i, j] = "%";
                 }
-                else if (lines[j][i] == "P"[0]) // player
+                else if (lines[j][i] == "$"[0]) // grass2
 
                 {
-                    daMap[i, j] = "P";
+                    daMap[i, j] = "$";
+                }
+                else if (lines[j][i] == "&"[0]) // tree
+                {
+                    daMap[i, j] = "&"; 
+                }
+                else if (lines[j][i] == "P"[0]) // Player
+                {
+                    daMap[i, j] = "P"; 
                 }
                 else // field by default 
                 {
@@ -297,39 +320,10 @@ public class TileMapGenerator : MonoBehaviour
         }
     }
 
-    public void MoveOnMap(string[,] smap, int mvx, int mvy)
-    {
-        // Get The position of the player
-        int playerx = 0;
-        int playery = 0;
-
-        for (int i = 0; i < smap.GetLength(0); i++)
-        {
-            for (int j = 0; j < smap.GetLength(1); j++)
-            {
-                if (smap[i, j] == "P")
-                {
-                    playerx = i;
-                    playery = j;
-                }
-            }
-        }
-
-        if (checkForCollision(playerx + mvx, playery + mvy, "@", smap) || checkForCollision(playerx + mvx, playery + mvy, "#", smap))
-        {
-            
-            
-        }
-        else 
-        {
-            smap[playerx, playery] = "*";
-            smap[playerx + mvx, playery + mvy] = "P";
-        }
-
-    }
-
+    
     public int CountForString(int x, int y, string[,] map, string tilestring)
     {
+        // it counts how many a specific strings are around a specific character
         int count = 0;
 
         for (int b = y - 1; b < y + 2; b++)
@@ -339,11 +333,11 @@ public class TileMapGenerator : MonoBehaviour
 
                 if (a < 0 || b < 0 || a >= multidimensionalMap.GetLength(0) || b >= multidimensionalMap.GetLength(1) || (a == x && b == y))
                     continue;
-                Debug.Log($"Checking position x {a} and y {b}. Position is {map[a, b]}. Is position 1? {map[a, b] == tilestring}");
+                //Debug.Log($"Checking position x {a} and y {b}. Position is {map[a, b]}. Is position 1? {map[a, b] == tilestring}");
                 if (map[a, b] == tilestring)
                 {
                     count++;
-                    Debug.Log($"Position x {a} and y {b}. value is 1! counting! Count is now {count}");
+                    //Debug.Log($"Position x {a} and y {b}. value is 1! counting! Count is now {count}");
                 }
             }
         }
@@ -353,6 +347,7 @@ public class TileMapGenerator : MonoBehaviour
 
     public int CountForAdjacent(int x, int y, string[,] map, string tilestring)
     {
+        // it counts how many characters are in adjacent spaces (right, up, left and down)
         int count = 0;
         int pass = 0;
 
@@ -368,6 +363,7 @@ public class TileMapGenerator : MonoBehaviour
 
     public bool checkForCollision(int x, int y, string colChar, string[,] map) 
     {
+        //Check if in a specific position, a specific characte exists on it
         if (map[x,y] == colChar) 
         {
             return true;
@@ -379,6 +375,14 @@ public class TileMapGenerator : MonoBehaviour
 
      }
 
+    public void LoadPremadeMap(string mapFilePath) 
+    {
+        //string pathToMyFile = $"{Application.dataPath}";
 
+        string myLines = System.IO.File.ReadAllText(mapFilePath);
+        ConvertMapToTilemap(myLines);
+
+
+    }
 
 }
