@@ -73,7 +73,8 @@ public class TileMapGenerator : MonoBehaviour
         {
             // The player moves down
             if(checkForCollision(player_x, player_y - 1, "#", multidimensionalMap) || checkForCollision(player_x, player_y - 1, "@", multidimensionalMap)) 
-            { Debug.Log("You can't pass" + player_x + " " + player_y);  }
+            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+              }
             else
             player_y--; 
             
@@ -84,7 +85,8 @@ public class TileMapGenerator : MonoBehaviour
 
             // The player moves up
             if (checkForCollision(player_x, player_y + 1, "#", multidimensionalMap) || checkForCollision(player_x, player_y + 1, "@", multidimensionalMap))
-            { Debug.Log("You can't pass" + player_x + " " + player_y); }
+            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+              }
             else
                 player_y++;
         }
@@ -94,7 +96,8 @@ public class TileMapGenerator : MonoBehaviour
 
             // The player moves left
             if (checkForCollision(player_x - 1, player_y, "#", multidimensionalMap) || checkForCollision(player_x - 1, player_y, "@", multidimensionalMap))
-            { Debug.Log("You can't pass" + player_x + " " + player_y);  }
+            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+              }
             else
                 player_x--; 
         }
@@ -103,7 +106,8 @@ public class TileMapGenerator : MonoBehaviour
         {
             // The player moves right
             if (checkForCollision(player_x + 1, player_y, "#", multidimensionalMap) || checkForCollision(player_x + 1, player_y, "@", multidimensionalMap))
-            { Debug.Log("You can't pass" + player_x + " " + player_y); }
+            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+             }
             else
                 player_x++; 
             
