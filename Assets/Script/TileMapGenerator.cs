@@ -86,8 +86,7 @@ public class TileMapGenerator : MonoBehaviour
             {
                 if(nKey > 0) 
                 {
-                    openDoor(player_x, player_y - 1, multidimensionalMap);
-                    nKey--; 
+                    openDoor(player_x, player_y - 1, multidimensionalMap);                     
                 }
                 
             }
@@ -106,7 +105,6 @@ public class TileMapGenerator : MonoBehaviour
                 if (nKey > 0)
                 {
                     openDoor(player_x, player_y + 1, multidimensionalMap);
-                    nKey--;
                 }
             }
             else
@@ -125,8 +123,7 @@ public class TileMapGenerator : MonoBehaviour
             {
                 if (nKey > 0)
                 {
-                    openDoor(player_x - 1, player_y, multidimensionalMap);
-                    nKey--;
+                    openDoor(player_x - 1, player_y, multidimensionalMap);                    
                 }
             }
             else
@@ -144,8 +141,7 @@ public class TileMapGenerator : MonoBehaviour
             {
                 if (nKey > 0)
                 {
-                    openDoor(player_x + 1, player_y, multidimensionalMap);
-                    nKey--;
+                    openDoor(player_x + 1, player_y, multidimensionalMap);                    
                 }
             }
             else
@@ -530,7 +526,10 @@ public class TileMapGenerator : MonoBehaviour
     public void openDoor(int x, int y, string[,] smap) 
     {
         if (smap[x, y] == "@")
-            smap[x, y] = "o"; 
+        { 
+            smap[x, y] = "o";
+            nKey--;
+        }    
     }
 
 }
