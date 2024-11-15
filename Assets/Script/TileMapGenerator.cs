@@ -8,6 +8,7 @@ using TMPro;
 //using UnityEngine.Windows;
 using UnityEditor.U2D.Aseprite;
 using static UnityEditor.Experimental.GraphView.GraphView;
+using JetBrains.Annotations;
 
 
 public class TileMapGenerator : MonoBehaviour
@@ -22,13 +23,18 @@ public class TileMapGenerator : MonoBehaviour
     public TileBase tree;
     public TileBase magicDoor;
     public TileBase magicDoor2;
+    public TileBase openedDoor;
+    public TileBase keys; 
     public string[,] multidimensionalMap = new string[25, 20];
     private string[] aString = new string[3];
-    public TextMeshProUGUI charText;
+    public TextMeshProUGUI stringMapText;
+    public TextMeshProUGUI keyCountText; 
     string sJoined;
     int player_x = 0;
     int player_y = 0;
     string pathToMyFile;
+    int nKey;
+    public int keymax = 3;  //There can only be 3 keys on the map
 
     // Start is called before the first frame update
     void Start()
@@ -38,18 +44,22 @@ public class TileMapGenerator : MonoBehaviour
         sJoined = GenerateMapString(25, 20);      
         ConvertToMap(sJoined, multidimensionalMap);
         ConvertMapToTilemap(sJoined);
-        charText.text = sJoined;  
+        stringMapText.text = sJoined;
         */
         // this ends for the random map
 
         //To generate a map based on a text file
         
         pathToMyFile = $"{Application.dataPath}/TextFileMap.txt";
-        LoadPremadeMap(pathToMyFile);
-
         ConvertToMap(System.IO.File.ReadAllText(pathToMyFile), multidimensionalMap);
+        LoadPremadeMap(pathToMyFile);
+        
+        
         
         // this ends for the text file map
+
+        nKey = 1; 
+        
 
         for (int i = 0; i < multidimensionalMap.GetLength(0); i++)
         {
@@ -72,22 +82,26 @@ public class TileMapGenerator : MonoBehaviour
 
         myTilemap.ClearAllTiles();
 
-        //ConvertMapToTilemap(sJoined);     //Comment the command from the left only if you are running with a text file
-
-        LoadPremadeMap(pathToMyFile);       //Comment the command from the left only if you are running with a random map generator
-
+        ConvertMapToTilemap(convertMapToString(25, 20, multidimensionalMap));   
+                
         myTilemap.SetTile(new Vector3Int(player_x, player_y, 1), player);
 
         if (Input.GetKeyDown(KeyCode.S))
         {
             // The player moves down
             if (checkForCollision(player_x, player_y - 1, "#", multidimensionalMap) || checkForCollision(player_x, player_y - 1, "@", multidimensionalMap))
-            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+            {
+                if(nKey > 0) 
+                {
+                    openDoor(player_x, player_y - 1, multidimensionalMap);
+                    nKey--; 
+                }
+                
             }
             else
                 player_y--;
 
-            SwapPositions();
+            teletransport();
         }
 
         if (Input.GetKeyDown(KeyCode.W))
@@ -95,14 +109,19 @@ public class TileMapGenerator : MonoBehaviour
 
             // The player moves up
             if (checkForCollision(player_x, player_y + 1, "#", multidimensionalMap) || checkForCollision(player_x, player_y + 1, "@", multidimensionalMap))
-            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+            {
+                if (nKey > 0)
+                {
+                    openDoor(player_x, player_y + 1, multidimensionalMap);
+                    nKey--;
+                }
             }
             else
                 player_y++;
 
 
 
-            SwapPositions();
+            teletransport();
         }
 
         if (Input.GetKeyDown(KeyCode.A))
@@ -110,13 +129,18 @@ public class TileMapGenerator : MonoBehaviour
 
             // The player moves left
             if (checkForCollision(player_x - 1, player_y, "#", multidimensionalMap) || checkForCollision(player_x - 1, player_y, "@", multidimensionalMap))
-            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+            {
+                if (nKey > 0)
+                {
+                    openDoor(player_x - 1, player_y, multidimensionalMap);
+                    nKey--;
+                }
             }
             else
                 player_x--;
 
 
-            SwapPositions();
+            teletransport();
 
         }
 
@@ -124,17 +148,28 @@ public class TileMapGenerator : MonoBehaviour
         {
             // The player moves right
             if (checkForCollision(player_x + 1, player_y, "#", multidimensionalMap) || checkForCollision(player_x + 1, player_y, "@", multidimensionalMap))
-            { //Debug.Log("You can't pass" + player_x + " " + player_y);
+            {
+                if (nKey > 0)
+                {
+                    openDoor(player_x + 1, player_y, multidimensionalMap);
+                    nKey--;
+                }
             }
             else
                 player_x++;
 
-            SwapPositions();
+            teletransport();
 
 
         }
 
+        if(checkForCollision(player_x, player_y, "k", multidimensionalMap)) 
+        {
+            nKey++;
+            multidimensionalMap[player_x, player_y] = "*"; 
+        }
 
+        keyCountText.text = "Keys: " + nKey; 
 
     }
 
@@ -144,7 +179,7 @@ public class TileMapGenerator : MonoBehaviour
     {
         // '#' for walls, '@' for doors, '*' for field '%' for grass, '&' for a tree
         // Creating a bidimensional array for the map to later convert it into a string
-        string sMatrix = "";
+        //string sMatrix = "";
 
         string[,] mapMatrix = new string[width, height];
 
@@ -156,7 +191,7 @@ public class TileMapGenerator : MonoBehaviour
             for (int i = 0; i < width; i++)
             {
                 if (i == 0 || j == 0 || i == width - 1 || j == height - 1)
-                    mapMatrix[i, j] = "#";  //The borders should be walls
+                    mapMatrix[i, j] = "#";  //1st rule: The borders should be walls
                 else if (i == width / 2 && j == height - 3)
                 {
                     //Where the player is
@@ -168,8 +203,8 @@ public class TileMapGenerator : MonoBehaviour
             }
         }
 
-        // Appling rules
-        // It can't be multiple doors together
+        
+        // 2nd Rule: if there's many doors, reduce the amount convert it into normal field
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
@@ -185,7 +220,7 @@ public class TileMapGenerator : MonoBehaviour
             }
         }
 
-
+        // generating the coordinates for the two magic doors
         int md1x = randomNumber(2, width / 3);
         int md1y = randomNumber(2, height / 3);
         int md2x = randomNumber(2 * width / 3, width - 3);
@@ -195,13 +230,13 @@ public class TileMapGenerator : MonoBehaviour
         mapMatrix[md1x, md1y] = "!";
         mapMatrix[md2x, md2y] = "^";
 
+        //3rd rule: if there's any door or wall in the adjacent tiles from the magic doors, all those tiles would be replaced by standard field tile
         if ((CountForAdjacent(md1x, md1y, mapMatrix, "@") > 0) || (CountForAdjacent(md1x, md1y, mapMatrix, "#") > 0))
         {
             mapMatrix[md1x + 1, md1y] = "*";
             mapMatrix[md1x - 1, md1y] = "*";
             mapMatrix[md1x, md1y - 1] = "*";
-            mapMatrix[md1x, md1y + 1] = "*";
-            Debug.Log("changed in MD1"); 
+            mapMatrix[md1x, md1y + 1] = "*";            
         }
 
         if ((CountForAdjacent(md2x, md2y, mapMatrix, "@") > 0) || (CountForAdjacent(md2x, md2y, mapMatrix, "#") > 0))
@@ -209,23 +244,26 @@ public class TileMapGenerator : MonoBehaviour
             mapMatrix[md2x + 1, md2y] = "*";
             mapMatrix[md2x - 1, md2y] = "*";
             mapMatrix[md2x, md2y - 1] = "*";
-            mapMatrix[md2x, md2y + 1] = "*";
-            Debug.Log("changed in MD2");
+            mapMatrix[md2x, md2y + 1] = "*";            
         }
+                
+        return convertMapToString(width, height, mapMatrix); 
+    }
 
+    string convertMapToString(int x, int y, string[,] smap) 
+    {
+        string result = "";
 
-        // Create a string based on the 2D array map
-
-        for (int j = 0; j < height; j++)
+        for (int j = 0; j < y; j++)
         {
-            for (int i = 0; i < width; i++)
+            for (int i = 0; i < x; i++)
             {
-                sMatrix += mapMatrix[i, j]; 
+                result += smap[i, j];
             }
-            sMatrix += Environment.NewLine; 
+            result += Environment.NewLine;
         }
 
-        return sMatrix; 
+        return result; 
     }
 
     public  static int randomNumber(int a, int b)
@@ -239,23 +277,28 @@ public class TileMapGenerator : MonoBehaviour
     string GenerateString() 
     {
         // Generate the char at random
-        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree
-        string charElement;
+        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree, 'k' for keys
+        string charElement;        
         int typeOfString = randomNumber(0, 100);
 
         if (typeOfString < 35)
         {
             charElement = "*";
         }
-        else if (typeOfString < 50)
+        else if (typeOfString < 55)
         {
             charElement = "%";
         }
-        else if (typeOfString < 65) 
+        else if (typeOfString < 75) 
         {
             charElement = "$"; 
         }
-        else if (typeOfString < 84)
+        else if (typeOfString < 85 && keymax > 0) 
+        {
+            charElement = "k";
+            keymax--;            //There can only be 3 keys on the map
+        }
+        else if (typeOfString < 86)
         {
             charElement = "#";
         }
@@ -318,6 +361,12 @@ public class TileMapGenerator : MonoBehaviour
                     myTilemap.SetTile(new Vector3Int(j, i, 0), magicDoor);
                 else if (lines[i][j] == "^"[0]) //2nd magic door
                     myTilemap.SetTile(new Vector3Int(j, i, 0), magicDoor2);
+                else if (lines[i][j] == "o"[0]) //Open Door
+                {
+                    myTilemap.SetTile(new Vector3Int(j, i, 0), openedDoor);
+                }
+                else if (lines[i][j] == "k"[0]) // Keys
+                    myTilemap.SetTile(new Vector3Int(j, i, 0), keys); 
                 else // field by default 
                 {
                     myTilemap.SetTile(new Vector3Int(j, i, 0), null);
@@ -330,15 +379,14 @@ public class TileMapGenerator : MonoBehaviour
     private void ConvertToMap(string sMap, string[,] daMap)
     {
         // Split the char (string) from a specific 2d array
-        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree
+        // '#' for walls, '@' for doors, '*' for field '%' for grass, '$' for grass2, '&' for a tree, 'P' for players, '!' or '^' for magic doors
         var lines = sMap.Split("\n"[0]);
 
         for (int j = 0; j < daMap.GetLength(1); j++)
         {
 
             for (int i = 0; i < daMap.GetLength(0); i++)
-            {
-                //Debug.Log("i is equal to: " + i + "J is equal to: " + j + " " + daMap.GetLength(0) + " " + daMap.GetLength(1)); 
+            {                 
                 if (lines[j][i] == "#"[0]) // wall
                 {
                     daMap[i, j] = "#";
@@ -370,8 +418,12 @@ public class TileMapGenerator : MonoBehaviour
                 }
                 else if (lines[j][i] == "!"[0]) //magic door
                     daMap[i, j] = "!";
+                else if (lines[j][i] == "o"[0]) //Opened door
+                    daMap[i,j] = "o";   
                 else if (lines[j][i] == "^"[0]) //2nd magic door
                         daMap[i, j] = "^"; 
+                else if (lines[j][i] == "k"[0]) // keys
+                    daMap[i,j] = "k";
                 else // field by default 
                 {
                     daMap[i, j] = "";
@@ -443,7 +495,7 @@ public class TileMapGenerator : MonoBehaviour
 
     }
 
-    public void SwapPositions() 
+    public void teletransport() 
     {
 
         // check if you are colliding with the 1st magic door, an then get the position of the 2nd magic door to be able to swap positions
@@ -480,6 +532,12 @@ public class TileMapGenerator : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void openDoor(int x, int y, string[,] smap) 
+    {
+        if (smap[x, y] == "@")
+            smap[x, y] = "o"; 
     }
 
 }
