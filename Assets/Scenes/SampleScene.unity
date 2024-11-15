@@ -481,6 +481,8 @@ MonoBehaviour:
   player: {fileID: 11400000, guid: 7330c87eb6df73443ba427ea2b2bbb48, type: 2}
   grass2: {fileID: 11400000, guid: d1db0c095b963cc428951f4045669bef, type: 2}
   tree: {fileID: 11400000, guid: 96fde963b475cce429f1351d22d0c59a, type: 2}
+  magicDoor: {fileID: 11400000, guid: 26d9c5c9447efc94a97dc78d8c5de0fb, type: 2}
+  magicDoor2: {fileID: 11400000, guid: bf3b47d0a33cc1741b98808eaef95d98, type: 2}
   charText: {fileID: 1031940619}
 --- !u!156049354 &799117725
 Grid:
