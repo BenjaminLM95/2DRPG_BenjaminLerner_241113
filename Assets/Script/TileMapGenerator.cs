@@ -1,14 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
-using UnityEngine.Rendering;
 using TMPro;
-//using UnityEngine.Windows;
-using UnityEditor.U2D.Aseprite;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using JetBrains.Annotations;
 
 
 public class TileMapGenerator : MonoBehaviour
