@@ -42,19 +42,19 @@ public class TileMapGenerator : MonoBehaviour
         // this ends for the random map
 
         //To generate a map based on a text file
-<<<<<<< HEAD
+
         /*
         pathToMyFile = $"{Application.dataPath}/TextFileMap.txt";
         ConvertToMap(System.IO.File.ReadAllText(pathToMyFile), multidimensionalMap);
         LoadPremadeMap(pathToMyFile);
         */
-=======
+
 
         //pathToMyFile = $"{Application.dataPath}/TextFileMap.txt";
         //ConvertToMap(System.IO.File.ReadAllText(pathToMyFile), multidimensionalMap);
         //LoadPremadeMap(pathToMyFile);
         
->>>>>>> 4dd99c06e847f455390bd7e8b0e4f5d667926539
+
         
         
         // this ends for the text file map
