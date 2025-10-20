@@ -33,20 +33,28 @@ public class TileMapGenerator : MonoBehaviour
     void Start()
     {
         // To generate a Random map
-        /*
+        
         sJoined = GenerateMapString(25, 20);      
         ConvertToMap(sJoined, multidimensionalMap);
         ConvertMapToTilemap(sJoined);
         stringMapText.text = sJoined;
-        */
+        
         // this ends for the random map
 
         //To generate a map based on a text file
-        
+<<<<<<< HEAD
+        /*
         pathToMyFile = $"{Application.dataPath}/TextFileMap.txt";
         ConvertToMap(System.IO.File.ReadAllText(pathToMyFile), multidimensionalMap);
         LoadPremadeMap(pathToMyFile);
+        */
+=======
+
+        //pathToMyFile = $"{Application.dataPath}/TextFileMap.txt";
+        //ConvertToMap(System.IO.File.ReadAllText(pathToMyFile), multidimensionalMap);
+        //LoadPremadeMap(pathToMyFile);
         
+>>>>>>> 4dd99c06e847f455390bd7e8b0e4f5d667926539
         
         
         // this ends for the text file map
@@ -76,7 +84,7 @@ public class TileMapGenerator : MonoBehaviour
         myTilemap.ClearAllTiles();
 
         ConvertMapToTilemap(convertMapToString(25, 20, multidimensionalMap));   
-                
+        
         myTilemap.SetTile(new Vector3Int(player_x, player_y, 1), player);
 
         if (Input.GetKeyDown(KeyCode.S))
@@ -109,8 +117,6 @@ public class TileMapGenerator : MonoBehaviour
             }
             else
                 player_y++;
-
-
 
             teletransport();
         }
