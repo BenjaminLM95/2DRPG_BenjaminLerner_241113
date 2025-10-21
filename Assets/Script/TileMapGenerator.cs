@@ -24,7 +24,7 @@ public class TileMapGenerator : MonoBehaviour
     public TextMeshProUGUI stringMapText;
     public TextMeshProUGUI keyCountText; 
     public TextMeshProUGUI levelCountText;
-    string sJoined;
+    [SerializeField] string sJoined;
     int player_x = 0;
     int player_y = 0;
     int keymax = 3;

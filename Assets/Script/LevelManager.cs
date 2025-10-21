@@ -9,7 +9,8 @@ public class LevelManager : MonoBehaviour
     [Header("References")]
     private UIManager uiManager; 
     StatsManager statsManager;
-    FileData fileData; 
+    FileData fileData;
+    DataDriven dataDriven; 
 
     [Header("Level info")]
     public int numRoom;
@@ -22,6 +23,7 @@ public class LevelManager : MonoBehaviour
         uiManager = FindFirstObjectByType<UIManager>();
         statsManager = FindFirstObjectByType<StatsManager>();
         fileData = FindFirstObjectByType<FileData>();
+        dataDriven = FindFirstObjectByType<DataDriven>(); 
 
         uiManager.MainMenuEnable();
         numRoom = 1;
@@ -58,13 +60,24 @@ public class LevelManager : MonoBehaviour
 
     public void SaveFile() 
     {
-        fileData.Save(); 
+        GameData savedGameData = new GameData
+        {
+            _numKeys = statsManager.playerKey,
+            _numLevels = numRoom,
+            _stringMap = statsManager.mapString
+
+        };
+
+        dataDriven.SaveJSON(savedGameData, dataDriven.path);
+
+        //fileData.Save(); 
         GoToMainMenu();
     }
 
     public void LoadFile() 
     {
-        fileData.Load();
+        dataDriven.LoadJSON(); 
+        //fileData.Load();
         GoToNextLevel(); 
     }
 }
