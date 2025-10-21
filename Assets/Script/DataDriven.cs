@@ -27,7 +27,8 @@ public class DataDriven : MonoBehaviour
     void Start()
     {
         statsManager = FindFirstObjectByType<StatsManager>();
-        levelManager = FindFirstObjectByType<LevelManager>(); 
+        levelManager = FindFirstObjectByType<LevelManager>();
+        path = Application.streamingAssetsPath + "/DataDriven.json";
         Debug.Log(json);
     }
 
@@ -40,7 +41,6 @@ public class DataDriven : MonoBehaviour
     public void SaveJSON(GameData _gData, string filePath) 
     {
         json = JsonUtility.ToJson(_gData);
-
         File.WriteAllText(filePath, json);
     }
 

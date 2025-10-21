@@ -58,6 +58,11 @@ public class LevelManager : MonoBehaviour
         numRoom++; 
     }
 
+    public void Exit() 
+    {
+        Application.Quit();
+    }
+
     public void SaveFile() 
     {
         GameData savedGameData = new GameData
@@ -68,6 +73,7 @@ public class LevelManager : MonoBehaviour
 
         };
 
+        Debug.Log("Keys: " + savedGameData._numKeys + "Level: " + savedGameData._numLevels);   
         dataDriven.SaveJSON(savedGameData, dataDriven.path);
 
         //fileData.Save(); 
